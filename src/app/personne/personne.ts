@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Personne } from '../../interface';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { PersonneService } from '../services/personne';
 
 @Component({
   selector: 'app-personne',
@@ -9,28 +10,21 @@ import { FormsModule, NgForm } from '@angular/forms';
   templateUrl: './personne.html',
   styleUrl: './personne.scss',
 })
-export class PersonneComponent {
-  personnes: Personne[] = [
-    {
-      nom: 'Doe',
-      prenom: 'John',
-      dateNaissance: '1990-01-01',
-      filiere: 'Informatique',
-    },
-    {
-      nom: 'Smith',
-      prenom: 'Jane',
-      dateNaissance: '1992-02-02',
-      filiere: 'Mathématiques',
-    },
-  ];
-
+export class PersonneComponent implements OnInit {
+  personnes: Personne[] = [];
   personneForm: Personne = {
     nom: '',
     prenom: '',
     dateNaissance: '',
     filiere: '',
   };
+
+  constructor(private personneService: PersonneService) {
+    this.personnes = this.personneService.personnes;
+  }
+  ngOnInit(): void {
+    this.personnes = this.personneService.findAll();
+  }
 
   ajouterPersonne() {
     if (
@@ -39,7 +33,7 @@ export class PersonneComponent {
       this.personneForm.dateNaissance.trim() !== '' &&
       this.personneForm.filiere.trim() !== ''
     ) {
-      this.personnes.push({ ...this.personneForm });
+      this.personneService.save(this.personneForm);
       this.personneForm = {
         nom: '',
         prenom: '',
@@ -50,6 +44,6 @@ export class PersonneComponent {
   }
 
   supprimerPersonne(index: number) {
-    this.personnes.splice(index, 1);
+    this.personneService.delete(index);
   }
 }
